@@ -14,5 +14,11 @@ Copy the password-vault.py file to your computer and rename the vault to whateve
 window.title("Nick's Password Vault")
 ```
 
+### Adding an Entry
+Click the "Add Entry" button at the top of the screen and enter all the information in the popup.
+
+### Removing an Entry
+Click the "Delete Entry" button at the end of the desired entry.
+
 ## Creds
 Inspiration and many techniques drawn from [RaxoCoding](https://www.youtube.com/watch?v=UrH2WCoYEVo).
