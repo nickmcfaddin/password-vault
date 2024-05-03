@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS masterpassword(
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vault(
     id INTEGER PRIMARY KEY,
+    category TEXT NOT NULL,
     website TEXT NOT NULL,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS vault(
 # PROGRAM FUNCTIONALITY -------------------------------------------------------------------------------------------------
 window = Tk()                                                   # window initialization
 window.title("Nick's Password Vault")
+category = "All"
 
 # encodes our passwords
 def hashPassword(input):
@@ -73,7 +75,7 @@ def firstScreen():
 
 # login screen that appears each time the user accesses the application
 def loginScreen():
-    window.geometry('250x100')
+    window.geometry('250x150')
 
     lbl = Label(window, text = "Enter Master Password")
     lbl.config(anchor = CENTER)
@@ -106,7 +108,7 @@ def loginScreen():
 
 # main password vault
 def passwordVault():
-    window.geometry('1050x500')
+    window.geometry('1300x500')
 
     for widget in window.winfo_children():                      # deletes all labels, text and buttons in window
         widget.destroy()
@@ -117,38 +119,44 @@ def passwordVault():
 
         for widget in window.winfo_children():                      
             widget.destroy()
-
-        lbl = Label(window, text = "Website/Application")
+        
+        lbl = Label(window, text = "Category")
         lbl.config(anchor = CENTER)
         lbl.pack()                          
 
+        cat = Entry(window, width = 25)             
+        cat.pack()
+        cat.focus()                                         
+
+        lbl1 = Label(window, text = "Website/Application")
+        lbl1.pack()
+
         website = Entry(window, width = 25)             
         website.pack()
-        website.focus()                                         
 
-        lbl1 = Label(window, text = "Username")
-        lbl1.pack()
+        lbl2 = Label(window, text = "Username")
+        lbl2.pack()
 
         username = Entry(window, width = 25)             
         username.pack()
 
-        lbl2 = Label(window, text = "Password")
-        lbl2.pack()
+        lbl3 = Label(window, text = "Password")
+        lbl3.pack()
 
         password = Entry(window, width = 25)             
         password.pack()
 
-        lbl3 = Label(window, text = "Notes")
-        lbl3.pack()
+        lbl4 = Label(window, text = "Notes")
+        lbl4.pack()
 
         notes = Entry(window, width = 25)             
         notes.pack()                                            
 
         # saves entry to db
         def saveEntry():
-            fields = """INSERT INTO vault(website, username, password, notes) VALUES (?, ?, ?, ?)"""
+            fields = """INSERT INTO vault(category, website, username, password, notes) VALUES (?, ?, ?, ?, ?)"""
 
-            cursor.execute(fields, (website.get(), username.get(), password.get(), notes.get()))
+            cursor.execute(fields, (cat.get(), website.get(), username.get(), password.get(), notes.get()))
             db.commit()
 
             passwordVault()                                                 # returns to vault after making an entry
@@ -163,30 +171,77 @@ def passwordVault():
 
         passwordVault()
 
+    def categoryManager():
+        window.geometry('450x450')
+
+        for widget in window.winfo_children():                      
+            widget.destroy()
+
+        lbl = Label(window, text = "Current Category: " + category, font = ("Helvetica", 14))
+        lbl.grid(column = 1, pady = 20)
+
+        def swapCategory(newCategory):
+            global category
+            category = newCategory
+            passwordVault()
+
+        def swapCategoryToAll():
+            global category
+            category = "All"
+            passwordVault()
+
+        cursor.execute("SELECT DISTINCT category FROM vault")
+        array = cursor.fetchall()
+
+        i = 0
+        if (category != "All"):
+            i = 1
+        
+            btn = Button(window, text = "Show All Categories", command = swapCategoryToAll)
+            btn.grid(column = 1, pady = 20)
+
+        j = 0
+        if(array != None):
+            while j < len(array):
+                lbl1 = Label(window, text = (array[j][0]), font = ("Helvetica", 10))
+                lbl1.grid(column = 0, row = i+2, padx = 50)
+
+                # need partial to take the current value of i rather than the last found
+                btn = Button(window, text = "<->", command = partial(swapCategory, (array[j][0])))
+                btn.grid(column = 2, row = i+2, padx = 50, pady = 10)
+                
+                i += 1
+                j += 1
+
     lbl = Label(window, text = "Password Vault", font = ("Helvetica", 16))
     lbl.grid(column = 2)
 
+    btn = Button(window, text = "Category: " + category, command = categoryManager)
+    btn.grid(row = 1, column = 0, pady = 10)
+
     btn = Button(window, text = "Add Entry", command = addEntry)
-    btn.grid(column = 2,  pady = 10)
+    btn.grid(row = 1, column = 2,  pady = 10)
 
     # creates the labels for our grid of entries
-    lbl = Label(window, text = "Website", font = ("Helvetica", 12))
+    lbl = Label(window, text = "Category", font = ("Helvetica", 12))
     lbl.grid(row = 2, column = 0, padx = 80)
-    lbl = Label(window, text = "Username", font = ("Helvetica", 12))
+    lbl = Label(window, text = "Website", font = ("Helvetica", 12))
     lbl.grid(row = 2, column = 1, padx = 80)
-    lbl = Label(window, text = "Password", font = ("Helvetica", 12))
+    lbl = Label(window, text = "Username", font = ("Helvetica", 12))
     lbl.grid(row = 2, column = 2, padx = 80)
-    lbl = Label(window, text = "Notes", font = ("Helvetica", 12))
+    lbl = Label(window, text = "Password", font = ("Helvetica", 12))
     lbl.grid(row = 2, column = 3, padx = 80)
+    lbl = Label(window, text = "Notes", font = ("Helvetica", 12))
+    lbl.grid(row = 2, column = 4, padx = 80)
 
-    cursor.execute("SELECT * FROM vault")
-    count = cursor.fetchall()
-    if(count != None):
+    cursor.execute("SELECT * FROM vault WHERE category = (?)", (category,))
+    if category == "All":
+        cursor.execute("SELECT * FROM vault")
+    array = cursor.fetchall()
+
+    if(array != None):
         i = 0
-        while i < len(count):
-            cursor.execute("SELECT * FROM vault")
-            array = cursor.fetchall()
-
+        while i < len(array):
             lbl1 = Label(window, text = (array[i][1]), font = ("Helvetica", 10))
             lbl1.grid(column = 0, row = i+3)
             lbl1 = Label(window, text = (array[i][2]), font = ("Helvetica", 10))
@@ -195,10 +250,11 @@ def passwordVault():
             lbl1.grid(column = 2, row = i+3)
             lbl1 = Label(window, text = (array[i][4]), font = ("Helvetica", 10))
             lbl1.grid(column = 3, row = i+3)
+            lbl1 = Label(window, text = (array[i][5]), font = ("Helvetica", 10))
+            lbl1.grid(column = 4, row = i+3)
 
-            # need partial to take the current value of i rather than the last found
             btn = Button(window, text = "Delete Entry", command = partial(removeEntry, array[i][0]))
-            btn.grid(column = 4, row = i+3, padx = 50, pady = 10)
+            btn.grid(column = 5, row = i+3, padx = 50, pady = 10)
             
             i += 1
 
