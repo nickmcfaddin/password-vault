@@ -113,72 +113,17 @@ def passwordVault():
     for widget in window.winfo_children():                      # deletes all labels, text and buttons in window
         widget.destroy()
 
-    # function to add an entry to the db
-    def addEntry():
-        window.geometry('250x300')
-
-        for widget in window.winfo_children():                      
-            widget.destroy()
-        
-        lbl = Label(window, text = "Category")
-        lbl.config(anchor = CENTER)
-        lbl.pack()                          
-
-        cat = Entry(window, width = 25)             
-        cat.pack()
-        cat.focus()                                         
-
-        lbl1 = Label(window, text = "Website/Application")
-        lbl1.pack()
-
-        website = Entry(window, width = 25)             
-        website.pack()
-
-        lbl2 = Label(window, text = "Username")
-        lbl2.pack()
-
-        username = Entry(window, width = 25)             
-        username.pack()
-
-        lbl3 = Label(window, text = "Password")
-        lbl3.pack()
-
-        password = Entry(window, width = 25)             
-        password.pack()
-
-        lbl4 = Label(window, text = "Notes")
-        lbl4.pack()
-
-        notes = Entry(window, width = 25)             
-        notes.pack()                                            
-
-        # saves entry to db
-        def saveEntry():
-            fields = """INSERT INTO vault(category, website, username, password, notes) VALUES (?, ?, ?, ?, ?)"""
-
-            cursor.execute(fields, (cat.get(), website.get(), username.get(), password.get(), notes.get()))
-            db.commit()
-
-            passwordVault()                                                 # returns to vault after making an entry
-
-        btn = Button(window, text = "Submit", command = saveEntry)
-        btn.pack(pady = 10)
-
-    # function to remove an entry from the db
-    def removeEntry(input):
-        cursor.execute("DELETE FROM vault WHERE id = ?", (input,))
-        db.commit()
-
-        passwordVault()
-
     def categoryManager():
         window.geometry('450x450')
 
         for widget in window.winfo_children():                      
             widget.destroy()
 
+        btn = Button(window, text = "<-", command = passwordVault)
+        btn.grid(column = 0, pady = 20)
+        
         lbl = Label(window, text = "Current Category: " + category, font = ("Helvetica", 14))
-        lbl.grid(column = 1, pady = 20)
+        lbl.grid(column = 1, row = 0, pady = 20)
 
         def swapCategory(newCategory):
             global category
@@ -190,7 +135,7 @@ def passwordVault():
             category = "All"
             passwordVault()
 
-        cursor.execute("SELECT DISTINCT category FROM vault")
+        cursor.execute("SELECT DISTINCT category FROM vault ORDER BY category DESC")
         array = cursor.fetchall()
 
         i = 0
@@ -208,10 +153,123 @@ def passwordVault():
 
                 # need partial to take the current value of i rather than the last found
                 btn = Button(window, text = "<->", command = partial(swapCategory, (array[j][0])))
-                btn.grid(column = 2, row = i+2, padx = 50, pady = 10)
+                btn.grid(column = 1, row = i+2, padx = 50, pady = 10)
                 
                 i += 1
                 j += 1
+
+    # function to add an entry to the db
+    def addEntry():
+        window.geometry('250x340')
+
+        for widget in window.winfo_children():                      
+            widget.destroy()
+        
+        lbl = Label(window, text = "Category")
+        lbl.place(x = 100, y = 10)                     
+
+        def swapCategoryPersonal():
+            global category
+            category = "Personal"
+            cat1.config(fg = "red")
+            cat2.config(fg = "black")
+            cat3.config(fg = "black")
+            cat4.config(fg = "black")
+            cat5.config(fg = "black")
+
+        def swapCategorySchool():
+            global category
+            category = "School"
+            cat1.config(fg = "black")
+            cat2.config(fg = "red")
+            cat3.config(fg = "black")
+            cat4.config(fg = "black")
+            cat5.config(fg = "black")
+
+        def swapCategoryWork():
+            global category
+            category = "Work"
+            cat1.config(fg = "black")
+            cat2.config(fg = "black")
+            cat3.config(fg = "red")
+            cat4.config(fg = "black")
+            cat5.config(fg = "black")
+
+        def swapCategorySports():
+            global category
+            category = "Sports"
+            cat1.config(fg = "black")
+            cat2.config(fg = "black")
+            cat3.config(fg = "black")
+            cat4.config(fg = "red")
+            cat5.config(fg = "black")
+
+        def swapCategoryOther():
+            global category
+            category = "Other"
+            cat1.config(fg = "black")
+            cat2.config(fg = "black")
+            cat3.config(fg = "black")
+            cat4.config(fg = "black")
+            cat5.config(fg = "red")
+
+        cat1 = Button(window, text = "Personal", command = swapCategoryPersonal)
+        cat1.place(x = 5, y = 35)
+
+        cat2 = Button(window, text = "School", command = swapCategorySchool)
+        cat2.place(x = 63, y = 35)
+
+        cat3 = Button(window, text = "Work", command = swapCategoryWork)
+        cat3.place(x = 113, y = 35)
+
+        cat4 = Button(window, text = "Sports", command = swapCategorySports)
+        cat4.place(x = 155, y = 35)
+
+        cat5 = Button(window, text = "Other", command = swapCategoryOther)
+        cat5.place(x = 203, y = 35)                                
+
+        lbl1 = Label(window, text = "Website/Application")
+        lbl1.place(x = 75, y = 70)
+
+        website = Entry(window, width = 25)             
+        website.place(x = 50, y = 95) 
+
+        lbl2 = Label(window, text = "Username")
+        lbl2.place(x = 100, y = 130)
+
+        username = Entry(window, width = 25)             
+        username.place(x = 50, y = 155)
+
+        lbl3 = Label(window, text = "Password")
+        lbl3.place(x = 100, y = 190)
+
+        password = Entry(window, width = 25)             
+        password.place(x = 50, y = 215)
+
+        lbl4 = Label(window, text = "Notes")
+        lbl4.place(x = 110, y = 250)
+
+        notes = Entry(window, width = 25)             
+        notes.place(x = 50, y = 275)                                         
+
+        # saves entry to db
+        def saveEntry():
+            fields = """INSERT INTO vault(category, website, username, password, notes) VALUES (?, ?, ?, ?, ?)"""
+
+            cursor.execute(fields, (category, website.get(), username.get(), password.get(), notes.get()))
+            db.commit()
+
+            passwordVault()                                                 # returns to vault after making an entry
+
+        btn = Button(window, text = "Submit", command = saveEntry)
+        btn.place(x = 100, y = 310)
+
+    # function to remove an entry from the db
+    def removeEntry(input):
+        cursor.execute("DELETE FROM vault WHERE id = ?", (input,))
+        db.commit()
+
+        passwordVault()
 
     lbl = Label(window, text = "Password Vault", font = ("Helvetica", 16))
     lbl.grid(column = 2)
@@ -234,9 +292,9 @@ def passwordVault():
     lbl = Label(window, text = "Notes", font = ("Helvetica", 12))
     lbl.grid(row = 2, column = 4, padx = 80)
 
-    cursor.execute("SELECT * FROM vault WHERE category = (?)", (category,))
+    cursor.execute("SELECT * FROM vault WHERE category = (?) ORDER BY website DESC", (category,))
     if category == "All":
-        cursor.execute("SELECT * FROM vault")
+        cursor.execute("SELECT * FROM vault ORDER BY website DESC")
     array = cursor.fetchall()
 
     if(array != None):
