@@ -271,6 +271,11 @@ def passwordVault():
 
         passwordVault()
 
+    # function to copy a password to the clipboard
+    def copyToClipboard(input):
+        window.clipboard_append(input)
+        passwordVault()
+
     lbl = Label(window, text = "Password Vault", font = ("Helvetica", 16))
     lbl.grid(column = 2)
 
@@ -290,7 +295,7 @@ def passwordVault():
     lbl = Label(window, text = "Password", font = ("Helvetica", 12))
     lbl.grid(row = 2, column = 3, padx = 80)
     lbl = Label(window, text = "Notes", font = ("Helvetica", 12))
-    lbl.grid(row = 2, column = 4, padx = 80)
+    lbl.grid(row = 2, column = 5, padx = 80)
 
     cursor.execute("SELECT * FROM vault WHERE category = (?) ORDER BY website DESC", (category,))
     if category == "All":
@@ -306,8 +311,10 @@ def passwordVault():
             lbl1.grid(column = 1, row = i+3)
             lbl1 = Label(window, text = (array[i][3]), font = ("Helvetica", 10))
             lbl1.grid(column = 2, row = i+3)
-            lbl1 = Label(window, text = (array[i][4]), font = ("Helvetica", 10))
-            lbl1.grid(column = 3, row = i+3)
+
+            btn = Button(window, text = array[i][4], command = partial(copyToClipboard, array[i][4]))
+            btn.grid(column = 3, row = i+3, padx = 50, pady = 10)
+
             lbl1 = Label(window, text = (array[i][5]), font = ("Helvetica", 10))
             lbl1.grid(column = 4, row = i+3)
 
