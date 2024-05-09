@@ -319,7 +319,7 @@ def passwordVault():
             lbl1.grid(column = 4, row = i+3)
 
             btn = Button(window, text = "Delete Entry", command = partial(removeEntry, array[i][0]))
-            btn.grid(column = 5, row = i+3, padx = 50, pady = 10)
+            btn.grid(column = 6, row = i+3, padx = 50, pady = 10)
             
             i += 1
 
